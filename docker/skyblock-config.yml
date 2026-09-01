@@ -1,0 +1,16 @@
+# SkyBlock configuration for the docker compose stack.
+#
+# Mounted over /home/plugin_data/NGSkyBlock/config.yml. Read only when NGEssentials is in development
+# mode; in production SkyBlock takes these from S3_BUCKET, S3_ACCESS_KEY, S3_SECRET_KEY, S3_REGION and
+# S3_ENDPOINT instead.
+#
+# The endpoint is the compose service name, and the RustFS certificate is issued for that name — the
+# S3 client in libasyncio hardcodes https:// and curls with CURLOPT_SSL_VERIFYHOST=2, so the hostname
+# used here has to match the certificate.
+s3:
+  access-key: 'nethergames'
+  secret-key: 'nethergames'
+  signature: 'v4'
+  region: 'us-east-1'
+  endpoint: 'rustfs:9000'
+  bucket: 'skyblock'

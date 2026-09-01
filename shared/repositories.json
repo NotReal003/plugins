@@ -11,6 +11,15 @@
     },
     {
       "type": "path",
+      "url": "../libraries/libMMO",
+      "options": {
+        "versions": {
+          "nethergamesmc/libmmo": "dev-stable"
+        }
+      }
+    },
+    {
+      "type": "path",
       "url": "../libraries/libPhysX",
       "options": {
         "versions": {

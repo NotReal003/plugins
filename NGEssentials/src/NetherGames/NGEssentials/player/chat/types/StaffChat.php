@@ -20,7 +20,6 @@ class StaffChat extends ServerWideChat
             'Staff Chat',
             ChatChannel::CHANNEL_STAFF,
             $chatManager,
-            '940612133224325120/Sg6GqxXz9JAoGlAScuwfTW14a4AlbOxGUydBFmBWN6_oaNImbImD6l8I4334NwpomVJ9'
         );
     }
 

@@ -1,0 +1,169 @@
+# NetherGames server stack: one gamemode server, its database, and a database UI.
+#
+#   export GITHUB_TOKEN=github_pat_...
+#   docker compose up --build
+#
+# Defaults to the Lobby gamemode. Pick another with GAME, e.g. `GAME=Bedwars docker compose up --build`.
+# Connect a Bedrock client to 127.0.0.1:19132; phpMyAdmin is on http://localhost:8080.
+#
+# The server runs in development mode, so it needs no proxy and reads its credentials from
+# docker/credentials.yml. See README.md for the production layout.
+
+name: nethergames
+
+services:
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-nethergames}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      # Schemas are read straight from the repository, so they stay in step with the plugins.
+      - ./docker/mariadb-init:/docker-entrypoint-initdb.d:ro
+      - ./NGEssentials/ngdata_players.sql:/schemas/ngdata_players.sql:ro
+      - ./SkyBlock/resources/table_mysql.sql:/schemas/table_mysql.sql:ro
+      - ./Factions/resources/table_mysql.sql:/schemas/factions_table_mysql.sql:ro
+      # Stored procedures. The plugins CALL these, so a database without them fails at runtime rather
+      # than at startup — vault open/close and economy transactions are all procedure-backed.
+      - ./NGEssentials/resources/stored_procedures.sql:/schemas/ngdata_procedures.sql:ro
+      - ./Factions/resources/procedures:/schemas/factions_procedures:ro
+    healthcheck:
+      # Deliberately over TCP. On a fresh volume the entrypoint runs the init scripts against a
+      # temporary socket-only server and then restarts; a socket ping would report healthy during that
+      # window and the game server would connect just as MariaDB went down again. Requiring a TCP
+      # connection, and a table the init script creates, means healthy only once it is really ready.
+      test: ["CMD-SHELL", "mariadb -h 127.0.0.1 -uroot -p\"$$MARIADB_ROOT_PASSWORD\" -e 'SELECT 1 FROM ngdata.player_data LIMIT 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 60s
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_PASSWORD:-nethergames}
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+      args:
+        GAME: ${GAME:-Lobby}
+        # --prefer-dist matches CI. Set COMPOSER_PREFER=--prefer-source to install over git instead.
+        COMPOSER_PREFER: ${COMPOSER_PREFER:---prefer-dist}
+      secrets:
+        - github_token
+    restart: unless-stopped
+    environment:
+      # Selects Agora or Skyland for SkyBlock; ignored by the other gamemodes.
+      GAME_TYPE: ${GAME_TYPE:-}
+    ports:
+      - "${SERVER_PORT:-19132}:19132/udp"
+    volumes:
+      - ./docker/credentials.yml:/home/plugin_data/NGEssentials/credentials/credentials.yml:ro
+      # Worlds live on the host so they survive rebuilds and can be edited directly. Point WORLDS_PATH
+      # at your own collection, e.g. WORLDS_PATH=~/Documents/Personal/worlds.
+      - ${WORLDS_PATH:-./worlds}:/home/worlds
+      # Arena worlds and arenas.yml from the assets repository, installed on first boot by
+      # docker/entrypoint.sh. Read-only: the entrypoint copies out of it, never into it. Leave
+      # ASSETS_PATH unset and the server runs without arenas on a generated world.
+      - ${ASSETS_PATH:-./assets}:/assets:ro
+      # SkyBlock only: points island storage at the local RustFS instance. Harmless for other
+      # gamemodes, which never read this file.
+      - ./docker/skyblock-config.yml:/home/plugin_data/NGSkyBlock/config.yml:ro
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+  # ---------------------------------------------------------------------------------------------
+  # Local S3 for SkyBlock island storage. Only started with the "skyblock" profile:
+  #   GAME=SkyBlock GAME_TYPE=Skyland COMPOSE_PROFILES=skyblock docker compose up --build
+  # ---------------------------------------------------------------------------------------------
+
+  # libasyncio's S3 client hardcodes https://, so RustFS has to serve TLS. Peer verification is off
+  # (PocketMine's curl helper sets CURLOPT_SSL_VERIFYPEER=false) but the hostname is still checked,
+  # so this issues a self-signed certificate for the service name "rustfs".
+  rustfs-certs:
+    image: alpine/openssl:latest
+    profiles: ["skyblock"]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -f /certs/rustfs_cert.pem ] && [ -f /certs/rustfs_key.pem ]; then
+          echo "reusing existing development certificate"
+        else
+          openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+            -keyout /certs/rustfs_key.pem -out /certs/rustfs_cert.pem \
+            -subj "/CN=rustfs" -addext "subjectAltName=DNS:rustfs,DNS:localhost,IP:127.0.0.1"
+          chmod 644 /certs/rustfs_key.pem
+          echo "generated development certificate for rustfs"
+        fi
+    volumes:
+      - rustfs-certs:/certs
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    profiles: ["skyblock"]
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY:-nethergames}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY:-nethergames}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_TLS_PATH: /certs
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "${RUSTFS_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - rustfs-data:/data
+      - rustfs-certs:/certs:ro
+    depends_on:
+      rustfs-certs:
+        condition: service_completed_successfully
+
+  # Islands are stored as objects in a bucket that must already exist; nothing in libasyncio creates
+  # one. This polls until RustFS answers, then creates it if missing.
+  rustfs-init:
+    image: amazon/aws-cli:latest
+    profiles: ["skyblock"]
+    entrypoint: ["/bin/sh", "-c"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:-nethergames}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:-nethergames}
+      AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
+    command:
+      - |
+        BUCKET="${S3_BUCKET:-skyblock}"
+        for i in $$(seq 1 60); do
+          if aws --endpoint-url https://rustfs:9000 --no-verify-ssl s3 ls "s3://$$BUCKET" >/dev/null 2>&1; then
+            echo "bucket $$BUCKET already exists"; exit 0
+          fi
+          if aws --endpoint-url https://rustfs:9000 --no-verify-ssl s3 mb "s3://$$BUCKET" >/dev/null 2>&1; then
+            echo "created bucket $$BUCKET"; exit 0
+          fi
+          sleep 2
+        done
+        echo "RustFS did not become ready in time" >&2; exit 1
+    depends_on:
+      - rustfs
+
+volumes:
+  mariadb-data:
+  rustfs-data:
+  rustfs-certs:
+
+# Passed to the build, never baked into an image layer. Requires GITHUB_TOKEN in your environment.
+secrets:
+  github_token:
+    environment: GITHUB_TOKEN

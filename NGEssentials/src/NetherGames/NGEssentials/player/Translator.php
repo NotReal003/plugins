@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace NetherGames\NGEssentials\player;
 
+use FilesystemIterator;
+use JsonException;
 use libforms\elements\Button;
 use libforms\elements\ImageButton;
 use libforms\FormManager;
@@ -30,7 +32,18 @@ use NetherGames\NGEssentials\player\forms\Forms;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\TextFormat as TF;
+use function array_key_exists;
+use function array_keys;
+use function count;
+use function dirname;
+use function file_get_contents;
+use function implode;
+use function is_array;
+use function is_dir;
+use function json_decode;
 use function str_replace;
+use function strtolower;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * Simple guide for Translator class.
@@ -86,9 +99,71 @@ class Translator
         self::pullTranslations();
     }
 
+    /**
+     * Loads every locale bundled under lang/locale into memory, keyed by its locale code.
+     *
+     * These used to be fetched from TRANSLATE_API_URL at boot. That service is gone, but the locale
+     * files ship with the plugin, so they are read straight from disk instead — including from inside
+     * the built phar, which is why this walks the directory rather than using glob().
+     *
+     * A malformed or unreadable file is reported and skipped rather than aborting the load, so one bad
+     * locale cannot take the server down; the remaining languages still work and missing keys fall
+     * back to FALLBACK_LANGUAGE.
+     */
     public static function pullTranslations(): void
     {
-        NGEssentials::getInstance()->getLogger()->info("Translation pulls are currently unavailable.");
+        $logger = NGEssentials::getInstance()->getLogger();
+        $directory = dirname(__DIR__) . '/lang/locale';
+
+        if (!is_dir($directory)) {
+            $logger->warning("Translations directory '$directory' does not exist, messages will be shown as raw translation keys.");
+
+            return;
+        }
+
+        $translations = [];
+
+        foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO) as $file) {
+            if (!$file->isFile() || strtolower($file->getExtension()) !== 'json') {
+                continue;
+            }
+
+            $name = $file->getFilename();
+            $contents = file_get_contents($file->getPathname());
+
+            if ($contents === false) {
+                $logger->warning("Could not read locale file '$name', skipping it.");
+                continue;
+            }
+
+            try {
+                $data = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $exception) {
+                $logger->warning("Locale file '$name' is not valid JSON (" . $exception->getMessage() . "), skipping it.");
+                continue;
+            }
+
+            if (!is_array($data) || !isset($data['name'], $data['pretty_name'], $data['translations']) || !is_array($data['translations'])) {
+                $logger->warning("Locale file '$name' is missing name, pretty_name or translations, skipping it.");
+                continue;
+            }
+
+            $translations[strtolower((string)$data['name'])] = $data;
+        }
+
+        self::$translations = $translations;
+
+        if ($translations === []) {
+            $logger->warning("No locales were loaded from '$directory', messages will be shown as raw translation keys.");
+
+            return;
+        }
+
+        if (!array_key_exists(self::FALLBACK_LANGUAGE, $translations)) {
+            $logger->warning("Fallback locale '" . self::FALLBACK_LANGUAGE . "' is missing, so keys absent from a player's language cannot be resolved.");
+        }
+
+        $logger->info("Loaded " . count($translations) . " locales: " . implode(', ', array_keys($translations)) . ".");
     }
 
     public static function sendLanguageCredits(NGPlayer $player, NGEssentials $ess, string $language): void

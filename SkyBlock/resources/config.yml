@@ -1,0 +1,11 @@
+# Configuration file for the NGSkyBlock plugin
+#
+# S3-compatible object storage used for island world backups.
+# Fill these in with your own bucket's credentials before running.
+s3:
+  access-key: ''
+  secret-key: ''
+  signature: 'v4'
+  region: ''
+  endpoint: ''
+  bucket: ''

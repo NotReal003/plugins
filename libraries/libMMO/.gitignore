@@ -1,0 +1,5 @@
+.idea/
+vendor/
+phpstan.neon
+.vscode/
+composer.merged.*

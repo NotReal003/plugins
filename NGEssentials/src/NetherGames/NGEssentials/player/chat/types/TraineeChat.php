@@ -20,7 +20,6 @@ class TraineeChat extends ServerWideChat
             'Trainee Chat',
             ChatChannel::CHANNEL_TRAINEE,
             $chatManager,
-            '940611835894300723/ZEG6juP5Xz0A7-rkz92fZZiQS4Ae3QUp-yGQwDf4lT_og8Iw9V8LX39RdUYFXy91C3sl'
         );
     }
 

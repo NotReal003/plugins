@@ -1,0 +1,139 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method factions\\Factions\:\:getEventEmitter\(\) should return factions\\utils\\EventEmitter but returns libMMO\\utils\\EventEmitter\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/Factions.php
+
+		-
+			message: '#^Method factions\\Factions\:\:getInstance\(\) should return factions\\Factions but returns libMMO\\MMOPlugin\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/Factions.php
+
+		-
+			message: '#^Method factions\\Factions\:\:getPlayerData\(\) should return factions\\player\\PlayerData but returns libMMO\\player\\PlayerData\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/Factions.php
+
+		-
+			message: '#^Method factions\\Factions\:\:getPlayerManager\(\) should return factions\\player\\PlayerManager but returns libMMO\\player\\PlayerManager\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/Factions.php
+
+		-
+			message: '#^Method factions\\player\\PlayerData\:\:getPlugin\(\) should return factions\\Factions but returns libMMO\\MMOPlugin\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/player/PlayerData.php
+
+		-
+			message: '#^Comparison operation "\>" between 0 and 5 is always false\.$#'
+			identifier: greater.alwaysFalse
+			count: 1
+			path: src/factions/task/EggSpawnTask.php
+
+		-
+			message: '#^Comparison operation "\>" between 0 and 0 is always false\.$#'
+			identifier: greater.alwaysFalse
+			count: 2
+			path: src/factions/utils/ChunkAnalyzeTask.php
+
+		-
+			message: '#^Instanceof between pocketmine\\item\\enchantment\\EnchantmentInstance and libMMO\\item\\enchantment\\CustomEnchantment will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/factions/utils/ChunkAnalyzeTask.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: src/factions/utils/ChunkAnalyzeTask.php
+
+		-
+			message: '#^Method factions\\utils\\EventEmitter\:\:getPlugin\(\) should return factions\\Factions but returns libMMO\\MMOPlugin\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/utils/EventEmitter.php
+
+		-
+			message: '#^Method factions\\utils\\InvestigationManager\:\:getPlugin\(\) should return factions\\Factions but returns libMMO\\MMOPlugin\.$#'
+			identifier: return.type
+			count: 1
+			path: src/factions/utils/InvestigationManager.php
+
+		-
+			message: '#^Comparison operation "\<" between int\<338, 359\> and 360\.0 is always true\.$#'
+			identifier: smaller.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 0 and int\<0, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 112\.5 and int\<113, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 157\.5 and int\<158, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 202\.5 and int\<203, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 22\.5 and int\<23, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 247\.5 and int\<248, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 292\.5 and int\<293, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 337\.5 and int\<338, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 67\.5 and int\<68, 359\> is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Result of && is always true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 1
+			path: src/factions/utils/Utils.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/factions/utils/Utils.php

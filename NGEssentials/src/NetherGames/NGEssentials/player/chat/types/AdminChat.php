@@ -20,7 +20,6 @@ class AdminChat extends ServerWideChat
             'Admin Chat',
             ChatChannel::CHANNEL_ADMIN,
             $chatManager,
-            '940612301734694942/rtkwijLeVC_h2tgtuLlgp4Zx3pdIix-10mvMoe3PhAeYL2IAJdJkMD2ZkPiyhF_ni1F6',
         );
     }
 

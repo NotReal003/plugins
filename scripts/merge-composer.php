@@ -30,7 +30,21 @@ function relativePath(string $from, string $to): string
     return implode('/', array_merge($up, $to)) ?: '.';
 }
 
+if (count($argv) < 4) {
+    fwrite(STDERR, "usage: merge-composer.php <project-composer.json> <shared-repositories.json> <output-path>\n");
+    exit(1);
+}
+
 [, $projectFile, $sharedFile, $outFile] = $argv;
+
+// realpath() returns false for a missing file, which used to reach dirname() as a TypeError and bury
+// the actual cause. The common case is pointing at composer-build.json in a project that has none.
+foreach (['project manifest' => $projectFile, 'shared repositories file' => $sharedFile] as $what => $file) {
+    if (realpath($file) === false) {
+        fwrite(STDERR, "error: $what '$file' does not exist (working directory: " . getcwd() . ")\n");
+        exit(1);
+    }
+}
 
 $projectDir = dirname(realpath($projectFile));
 $sharedDir = dirname(realpath($sharedFile));

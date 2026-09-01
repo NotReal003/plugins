@@ -14,6 +14,7 @@ use NetherGames\NGEssentials\player\NGPlayer;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
 use pocketmine\entity\Skin;
+use pocketmine\entity\NeverSavedWithChunkEntity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\nbt\tag\CompoundTag;
@@ -27,8 +28,9 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\ChunkLoader;
 use pocketmine\world\format\Chunk;
 
-abstract class NPC extends Human implements ChunkLoader
+abstract class NPC extends Human implements ChunkLoader, NeverSavedWithChunkEntity
 {
+
     /** @var int */
     private int $movementTick = 0;
 

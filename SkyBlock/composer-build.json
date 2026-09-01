@@ -1,0 +1,18 @@
+{
+  "name": "nethergamesmc/skyblock",
+  "description": "A SkyBlock plugin for PocketMine-MP",
+  "license": "proprietary",
+  "type": "project",
+  "require": {
+    "php": "^8.1",
+    "ext-leveldb": "*",
+    "nethergamesmc/invmenu": "dev-pm5",
+    "nethergamesmc/libasynql": "dev-pm5",
+    "nethergamesmc/libmmo": "dev-stable",
+    "sof3/await-generator": "^3.6"
+  },
+  "replace": {
+    "pocketmine/pocketmine-mp": "*"
+  },
+  "minimum-stability": "dev"
+}

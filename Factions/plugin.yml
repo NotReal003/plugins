@@ -1,0 +1,7 @@
+name: NGFactions
+version: 6.0.0
+main: factions\Factions
+api: [5.0.0]
+authors: [larryTheCoder]
+load: POSTWORLD
+depend: [ NGEssentials ]

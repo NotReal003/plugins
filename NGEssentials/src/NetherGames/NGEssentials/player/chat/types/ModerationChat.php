@@ -20,7 +20,6 @@ class ModerationChat extends ServerWideChat
             'Moderation Chat',
             ChatChannel::CHANNEL_MODERATION,
             $chatManager,
-            '940612301734694942/rtkwijLeVC_h2tgtuLlgp4Zx3pdIix-10mvMoe3PhAeYL2IAJdJkMD2ZkPiyhF_ni1F6'
         );
     }
 

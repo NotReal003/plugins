@@ -39,8 +39,8 @@ class FileOrDirectoryCompressTask extends FileOperationTask
     private string $output;
     /** @var int|null */
     private ?int $compressionLevel;
-    /** @var Compressor */
-    private Compressor $compressor;
+    /** @var CompressionFormat */
+    private CompressionFormat $compressorFormat;
 
     /**
      * FileOrDirectoryCompressTask constructor.
@@ -57,7 +57,7 @@ class FileOrDirectoryCompressTask extends FileOperationTask
             throw new InvalidArgumentException('Compression format ' . $format->name . ' is not compatible');
         }
 
-        $this->compressor = ($format ?? CompressionFormat::auto())->getCompressor();
+        $this->compressorFormat = $format ?? CompressionFormat::auto();
         $this->input = $input;
         $this->output = ($outputFormat = CompressionFormat::fromPath($output)) !== null ? substr($output, 0, -strlen('.' . $outputFormat->getFileExtension())) : $output;
         $this->compressionLevel = $compressionLevel;
@@ -71,7 +71,8 @@ class FileOrDirectoryCompressTask extends FileOperationTask
     {
         parent::onRun();
         try {
-            $this->setSuccess(RecursiveCompressor::compress($this->input, $this->output, $this->compressionLevel, $this->compressor->getFormat()));
+            $compressor = $this->compressorFormat->getCompressor();
+            $this->setSuccess(RecursiveCompressor::compress($this->input, $this->output, $this->compressionLevel, $compressor->getFormat()));
         } catch (RuntimeException $e) {
             GlobalLogger::get()->critical("Compression failed for {$this->input}: " . $e->getMessage());
             GlobalLogger::get()->logException($e);
@@ -81,7 +82,8 @@ class FileOrDirectoryCompressTask extends FileOperationTask
 
     protected function checkSuccess(): void
     {
-        $outputLocation = $this->output . '.' . $this->compressor->getFormat()->getFileExtension();
+        $compressor = $this->compressorFormat->getCompressor();
+        $outputLocation = $this->output . '.' . $compressor->getFormat()->getFileExtension();
         if ($this->getSuccess()) {
             Server::getInstance()->getLogger()->debug("Compressed directory/file {$this->input} to {$outputLocation}");
         } else {

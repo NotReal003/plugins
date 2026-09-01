@@ -8,7 +8,7 @@
     "nethergamesmc/invmenu": "dev-pm5"
   },
   "require-dev": {
-    "phpstan/phpstan": "2.1.31",
+    "phpstan/phpstan" : "2.1.29",
     "nethergamesmc/pocketmine-mp": "dev-stable",
     "nethergamesmc/ngessentials": "dev-stable"
   },

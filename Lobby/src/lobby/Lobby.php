@@ -50,8 +50,8 @@ class Lobby extends PluginBase
         $this->getServer()->getWorldManager()->loadWorld("ArcadeLobby"); // Load arcade lobby
 
         $this->playerManager = new PlayerManager();
-        $this->featuresManager = new FeaturesManager();
         $this->entityManager = new EntityManager();
+        $this->featuresManager = new FeaturesManager();
         $this->activityManager = new ActivityManager();
         $this->checkpointManager = new CheckpointManager();
 

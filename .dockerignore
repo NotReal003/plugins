@@ -1,0 +1,13 @@
+# Keep build contexts small and reproducible. Dependencies are installed inside the image, so a
+# host-side vendor/ tree must never leak in — it may hold dev packages (a second copy of the
+# PocketMine-MP source) that shadow the server's own classes at runtime.
+.git
+.github
+.idea
+.vscode
+**/vendor/
+**/composer.merged.json
+**/composer.merged.lock
+**/composer.phar
+**/.gitignore
+crashdumps/

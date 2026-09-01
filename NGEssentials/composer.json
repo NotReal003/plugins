@@ -31,7 +31,8 @@
     "kwn/php-rdkafka-stubs" : "dev-master",
     "nethergamesmc/lobby" : "dev-stable",
     "nethergamesmc/pocketmine-mp" : "dev-stable",
-    "nethergamesmc/skyblock" : "dev-pm5",
+    "nethergamesmc/factions" : "dev-stable",
+    "nethergamesmc/skyblock" : "dev-stable",
     "phpstan/phpstan" : "2.1.29"
   },
   "repositories" : [
@@ -45,12 +46,22 @@
       }
     },
     {
-      "type" : "vcs",
-      "url" : "git@github.com:NetherGamesMC/SkyBlock.git"
+      "type" : "path",
+      "url" : "../Factions",
+      "options" : {
+        "versions" : {
+          "nethergamesmc/factions" : "dev-stable"
+        }
+      }
     },
     {
-      "type" : "vcs",
-      "url" : "git@github.com:NetherGamesMC/libMMO.git"
+      "type" : "path",
+      "url" : "../SkyBlock",
+      "options" : {
+        "versions" : {
+          "nethergamesmc/skyblock" : "dev-stable"
+        }
+      }
     }
   ],
   "autoload" : {

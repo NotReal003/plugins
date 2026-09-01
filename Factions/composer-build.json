@@ -1,0 +1,19 @@
+{
+  "name": "nethergamesmc/factions",
+  "description": "A Factions plugin for PocketMine-MP",
+  "license": "proprietary",
+  "type": "project",
+  "require": {
+    "php": "^8.0",
+    "ext-leveldb": "*",
+    "godruoyi/php-snowflake": "dev-master",
+    "nethergamesmc/invmenu": "dev-pm5",
+    "nethergamesmc/libasynql": "dev-pm5",
+    "nethergamesmc/libmmo": "dev-stable",
+    "sof3/await-generator": "3.6.1"
+  },
+  "replace": {
+    "pocketmine/pocketmine-mp": "*"
+  },
+  "minimum-stability": "dev"
+}

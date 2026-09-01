@@ -512,16 +512,12 @@ ALTER TABLE `parkour`
 ALTER TABLE `player_data`
   ADD PRIMARY KEY (`xuid`),
   ADD UNIQUE KEY `player` (`player`) USING BTREE,
-  ADD KEY `email` (`email`),
   ADD KEY `rank` (`rank`),
   ADD KEY `xp` (`xp`),
   ADD KEY `status_credits` (`status_credits`),
-  ADD KEY `discord_id` (`discord_id`),
   ADD KEY `crate_keys` (`crate_keys`) USING BTREE,
   ADD KEY `first_joined` (`first_joined`) USING BTREE,
-  ADD KEY `skin_hash` (`skin_hash`),
-  ADD KEY `flags` (`flags`) USING BTREE,
-  ADD KEY `discord_tag` (`discord_tag`);
+  ADD KEY `skin_hash` (`skin_hash`);
 ALTER TABLE `player_data` ADD FULLTEXT KEY `ftx_player` (`player`);
 ALTER TABLE `player_data` ADD FULLTEXT KEY `ftx_rank` (`rank`);
 

@@ -38,8 +38,8 @@ class FileOrDirectoryUncompressTask extends FileOperationTask
     private string $input;
     /** @var string */
     private string $output;
-    /** @var Compressor */
-    private Compressor $compressor;
+    /** @var CompressionFormat */
+    private CompressionFormat $compressorFormat;
 
     /**
      * FileOrDirectoryUncompressTask constructor.
@@ -55,7 +55,7 @@ class FileOrDirectoryUncompressTask extends FileOperationTask
             throw new InvalidArgumentException('Compression format ' . $format->name . ' is not compatible');
         }
 
-        $this->compressor = ($format ?? CompressionFormat::fromPath($input) ?? CompressionFormat::auto())->getCompressor();
+        $this->compressorFormat = $format ?? CompressionFormat::fromPath($input) ?? CompressionFormat::auto();
         $this->input = $input;
         $this->output = $output;
         parent::__construct($input, $callable);
@@ -68,7 +68,8 @@ class FileOrDirectoryUncompressTask extends FileOperationTask
     {
         parent::onRun();
         try {
-            $this->setSuccess(RecursiveCompressor::uncompress($this->input, $this->output, $this->compressor->getFormat()));
+            $compressor = $this->compressorFormat->getCompressor();
+            $this->setSuccess(RecursiveCompressor::uncompress($this->input, $this->output, $compressor->getFormat()));
         } catch (RuntimeException $e) {
             GlobalLogger::get()->critical("Uncompression failed for {$this->input}: " . $e->getMessage());
             GlobalLogger::get()->logException($e);
@@ -78,7 +79,8 @@ class FileOrDirectoryUncompressTask extends FileOperationTask
 
     protected function checkSuccess(): void
     {
-        $extension = $this->compressor->getFormat()->getFileExtension();
+        $compressor = $this->compressorFormat->getCompressor();
+        $extension = $compressor->getFormat()->getFileExtension();
         $inputLocation = str_ends_with($this->input, '.' . $extension) ? $this->input : $this->input . '.' . $extension;
 
         if ($this->getSuccess()) {

@@ -1,0 +1,38 @@
+{
+  "name": "nethergamesmc/libmmo",
+  "description": "An MMO library for PocketMine-MP",
+  "license": "proprietary",
+  "type": "project",
+  "version": "dev-stable",
+  "require": {
+    "php": "^8.1",
+    "ext-zlib": "*",
+    "godruoyi/php-snowflake": "dev-master",
+    "muqsit/asynciterator": "dev-pm5",
+    "nethergamesmc/invmenu": "dev-pm5",
+    "nethergamesmc/libasynql": "dev-pm5",
+    "sof3/await-generator": "3.6.1"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "2.1.29",
+    "nethergamesmc/pocketmine-mp": "dev-stable",
+    "nethergamesmc/ngessentials": "dev-stable"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../../NGEssentials",
+      "options": {
+        "versions": {
+          "nethergamesmc/ngessentials": "dev-stable"
+        }
+      }
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "libMMO\\": "/"
+    }
+  },
+  "minimum-stability": "dev"
+}

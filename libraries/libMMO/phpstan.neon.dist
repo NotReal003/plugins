@@ -1,0 +1,15 @@
+includes:
+	- phpstan-baseline.neon
+
+parameters:
+    ignoreErrors:
+      - identifier: missingType.iterableValue
+      - identifier: missingType.generics
+      - identifier: function.alreadyNarrowedType
+    level: 6
+    paths:
+        - .
+    excludePaths:
+        analyse:
+            - bin (?)
+            - vendor

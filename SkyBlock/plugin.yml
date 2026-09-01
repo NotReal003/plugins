@@ -1,0 +1,9 @@
+name: NGSkyBlock
+main: skyblock\SkyBlock
+authors: [Shaheryar Sohail, Driesboy, TobiasDev, TwistedAsylumMC, Drew, larryTheCoder]
+version: 3.2-dev
+api: [5.0.0]
+softdepend:
+- DevTools
+- NGEssentials
+- DEVirion

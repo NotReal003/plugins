@@ -90,6 +90,16 @@ jobs:
               - 'libraries/**'
               - 'shared/**'
               - 'scripts/**'
+            skyblock:
+              - 'SkyBlock/**'
+              - 'libraries/**'
+              - 'shared/**'
+              - 'scripts/**'
+            factions:
+              - 'Factions/**'
+              - 'libraries/**'
+              - 'shared/**'
+              - 'scripts/**'
       - name: Build matrix
         id: set-matrix
         env:
@@ -113,7 +123,9 @@ jobs:
             {"plugin":"TheBridge","artifact":"xTheBridge","phar":"xTheBridge.phar","composer_file":"composer.json","needs_install":true},
             {"plugin":"UHC","artifact":"xUHC","phar":"xUHC.phar","needs_install":false},
             {"plugin":"SurvivalGames","artifact":"xSurvivalGames","phar":"xSurvivalGames.phar","composer_file":"composer.json","needs_install":true},
-            {"plugin":"Meltdown","artifact":"xMeltdown","phar":"xMeltdown.phar","needs_install":false}
+            {"plugin":"Meltdown","artifact":"xMeltdown","phar":"xMeltdown.phar","needs_install":false},
+            {"plugin":"SkyBlock","artifact":"xSkyBlock","phar":"xSkyBlock.phar","composer_file":"composer-build.json","needs_install":true},
+            {"plugin":"Factions","artifact":"xFactions","phar":"xFactions.phar","composer_file":"composer-build.json","needs_install":true}
           ]'
 
           if [ "$FORCE_ALL" = "true" ]; then
@@ -158,6 +170,12 @@ jobs:
             fi
             if [ "${{ steps.filter.outputs.meltdown }}" = "true" ]; then
               INCLUDE=$(echo "$INCLUDE" | jq -c --argjson all "$ALL" '. += [$all[12]]')
+            fi
+            if [ "${{ steps.filter.outputs.skyblock }}" = "true" ]; then
+              INCLUDE=$(echo "$INCLUDE" | jq -c --argjson all "$ALL" '. += [$all[13]]')
+            fi
+            if [ "${{ steps.filter.outputs.factions }}" = "true" ]; then
+              INCLUDE=$(echo "$INCLUDE" | jq -c --argjson all "$ALL" '. += [$all[14]]')
             fi
           fi
 

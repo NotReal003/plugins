@@ -43,6 +43,7 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\ObjectSet;
 use pocketmine\utils\TextFormat;
 use pocketmine\world\World;
+use function bin2hex;
 use function count;
 use function explode;
 use function function_exists;
@@ -53,7 +54,7 @@ use function is_numeric;
 use function mt_rand;
 use function pcntl_signal;
 use function putenv;
-use function random_int;
+use function random_bytes;
 use function strtolower;
 use function strtoupper;
 use function ucfirst;
@@ -273,7 +274,10 @@ class ServerManager extends BaseClass
             }
 
             if ($uniqueDeploymentId === false) {
-                $uniqueDeploymentId = (string)random_int(0, PHP_INT_MAX);
+                // Keep this short: the assembled unique id is stored in VARCHAR(32) columns (and used as
+                // a foreign key), and a full-width random integer overflows them. 8 hex characters leave
+                // room for the region, server type and game type segments.
+                $uniqueDeploymentId = bin2hex(random_bytes(4));
             }
 
             $serverType = (string)$plugin->getConfig()->getNested('serverType');
